@@ -4,8 +4,8 @@ operate existing reports on the database.
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import IntegrityError
 
-from .. import models, notifications
-from ..extensions import auth, db
+from .. import authorization, models, notifications
+from ..extensions import db
 from ..schemas import args, schemas
 from ..utils import queries
 
@@ -19,7 +19,7 @@ result_claim_url = result_claims_url + '/<uuid:id>'
 
 
 @blp.route(submits_url, methods=['GET'])
-@auth.admin_required()
+@authorization.require_admin()
 @blp.doc(operationId='ListSubmits')
 @blp.arguments(args.SubmitFilter, location='query')
 @blp.response(200, schemas.Submits)
@@ -53,7 +53,7 @@ def __list_submits(query_args):
 
 @blp.route(result_claims_url, methods=['GET'])
 @blp.doc(operationId='ListClaims')
-@auth.admin_required()
+@authorization.require_admin()
 @blp.arguments(args.ClaimFilter, location='query')
 @blp.response(200, schemas.Claims)
 @queries.to_pagination()
@@ -86,7 +86,7 @@ def __list_claims(query_args):
 
 @blp.route(result_claim_url, methods=['GET'])
 @blp.doc(operationId='GetClaim')
-@auth.admin_required()
+@authorization.require_admin()
 @blp.response(200, schemas.Claim)
 def get(*args, **kwargs):
     """(Public) Retrieves claim details
@@ -118,7 +118,7 @@ def __get(id):
 
 @blp.route(result_claim_url + ':approve', methods=['POST'])
 @blp.doc(operationId='ApproveClaim')
-@auth.admin_required()
+@authorization.require_admin()
 @blp.arguments(args.Schema(), location='query', as_kwargs=True)
 @blp.response(204)
 def approve_claim(*args, **kwargs):
@@ -166,7 +166,7 @@ def __approve_claim(id):
 
 @blp.route(result_claim_url + ':reject', methods=['POST'])
 @blp.doc(operationId='RejectClaim')
-@auth.admin_required()
+@authorization.require_admin()
 @blp.arguments(args.Schema(), location='query', as_kwargs=True)
 @blp.response(204)
 def reject_claim(*args, **kwargs):

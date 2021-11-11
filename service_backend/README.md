@@ -9,8 +9,8 @@ FLASK_ENV=<production-or-development>
 FLASK_APP=autoapp.py
 GUNICORN_WORKERS=1
 SECRET_KEY=<desired-cookie-encryption-key>
-OIDC_CLIENT_ID=<your-odic-client-secret>
-OIDC_CLIENT_SECRET=<your-odic-client-secret>
+EGI_CLIENT_ID=<your-odic-client-secret>
+EGI_CLIENT_SECRET=<your-odic-client-secret>
 ADMIN_ENTITLEMENTS=<only-used-in-production>
 DB_HOST=localhost
 DB_PORT=5432
@@ -37,7 +37,7 @@ ADMIN_ENTITLEMENTS=[<entitlements-for-admin>]
 Secrets are sensitive data which are not generally safe as environment variables. If you are using a docker compose configuration or similar technology which supports the usage of secrets, you can configure the following environment variables to indicate the location of the secret configuration file:
 ```ini
 SECRET_KEY_FILE=<path/to/cookie-secret/file>
-OIDC_CLIENT_SECRET_FILE=<path/to/OIDC-secret/file>
+EGI_CLIENT_SECRET_FILE=<path/to/OIDC-secret/file>
 ```
 
 > Note when the `_FILE` version of the environment variable is set, the direct version of the environment variable is ignored.

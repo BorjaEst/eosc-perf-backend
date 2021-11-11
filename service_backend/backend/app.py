@@ -10,7 +10,7 @@ from webargs.flaskparser import FlaskParser
 
 from . import routes
 from .extensions import api         # Api interface module
-from .extensions import auth        # flaat ext. manage db migrations
+from .extensions import oauth       # oauth ext. to manage AA
 from .extensions import bcrypt      # Encrypt passwords and others
 from .extensions import cache       # Caches responses
 from .extensions import db          # SQLAlchemy instance
@@ -78,6 +78,7 @@ def create_app(config_base="backend.settings", **settings_override):
     register_extensions(app)
     register_blueprints(app)
     configure_logger(app)
+    configure_authentication(app)
     return app
 
 
@@ -88,7 +89,7 @@ def register_extensions(app):
     cache.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
-    auth.init_app(app)
+    oauth.init_app(app)
     mail.init_app(app)
 
 
@@ -108,3 +109,17 @@ def configure_logger(app):
     handler = logging.StreamHandler(sys.stdout)
     if not app.logger.handlers:
         app.logger.addHandler(handler)
+
+
+def configure_authentication(app):
+    CONF_URL = 'https://aai-dev.egi.eu/oidc/.well-known/openid-configuration'
+    oauth.register(
+        name='egi',
+        server_metadata_url=CONF_URL,
+        client_kwargs={'scope': 'openid email profile'}
+    )
+
+    @app.route('/auth')
+    def auth():  # GET /auth?code=<authorization_code>&state=<state_value.>
+        token = oauth.egi.authorize_access_token()
+        return token['access_token']

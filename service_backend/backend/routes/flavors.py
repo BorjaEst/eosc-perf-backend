@@ -4,8 +4,8 @@ operate existing flavors on the database.
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import IntegrityError
 
-from .. import models, notifications
-from ..extensions import auth, db
+from .. import authorization, models, notifications
+from ..extensions import db
 from ..schemas import schemas
 
 blp = Blueprint(
@@ -49,7 +49,7 @@ def __get(id):
 
 @blp.route(resource_url, methods=["PUT"])
 @blp.doc(operationId='UpdateFlavor')
-@auth.admin_required()
+@authorization.require_admin()
 @blp.arguments(schemas.Flavor)
 @blp.response(204)
 def update(*args, **kwargs):
@@ -91,7 +91,7 @@ def __update(body_args, id):
 
 @blp.route(resource_url, methods=["DELETE"])
 @blp.doc(operationId='DeleteFlavor')
-@auth.admin_required()
+@authorization.require_admin()
 @blp.response(204)
 def delete(*args, **kwargs):
     """(Admins) Deletes an existing flavor
@@ -129,7 +129,7 @@ def __delete(id):
 
 @blp.route(resource_url + ":approve", methods=["POST"])
 @blp.doc(operationId='ApproveFlavor')
-@auth.admin_required()
+@authorization.require_admin()
 @blp.response(204)
 def approve(*args, **kwargs):
     """(Admins) Approves a flavor to include it on default list methods
@@ -169,7 +169,7 @@ def __approve(id):
 
 @blp.route(resource_url + ":reject", methods=["POST"])
 @blp.doc(operationId='RejectFlavor')
-@auth.admin_required()
+@authorization.require_admin()
 @blp.response(204)
 def reject(*args, **kwargs):
     """(Admins) Rejects a flavor to safe delete it.

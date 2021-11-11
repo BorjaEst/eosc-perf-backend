@@ -52,7 +52,7 @@ variable, for example:
 
 .. code-block:: bash
 
-    $ OIDC_TOKEN=oidc-token <your-account>
+    $ EGI_TOKEN=oidc-token <your-account>
 
 .. _oidc_home: https://openid.net/
 .. _oidc_agent: https://github.com/indigo-dc/oidc-agent/

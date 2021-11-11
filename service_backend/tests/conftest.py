@@ -41,8 +41,8 @@ def session_environment(sql_database):
     os.environ['DB_PORT'] = str(sql_database.port)
     os.environ['DB_NAME'] = str(sql_database.dbname)
     # OIDC environments
-    os.environ['OIDC_CLIENT_ID'] = "eosc-perf"
-    os.environ['OIDC_CLIENT_SECRET'] = "not-so-secret-for-testing"
+    os.environ['EGI_CLIENT_ID'] = "eosc-perf"
+    os.environ['EGI_CLIENT_SECRET'] = "not-so-secret-for-testing"
     os.environ['ADMIN_ENTITLEMENTS'] = "admins"
     # Email and notification configuration.
     os.environ['MAIL_SUPPORT'] = "support@example.com"

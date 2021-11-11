@@ -5,8 +5,8 @@ from flask_smorest import Blueprint, abort
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 
-from .. import models
-from ..extensions import auth, db
+from .. import authorization, models
+from ..extensions import db
 from ..schemas import args, schemas
 from ..utils import queries
 
@@ -49,7 +49,7 @@ def __list(query_args):
 
 @blp.route(collection_url, methods=["POST"])
 @blp.doc(operationId='CreateTag')
-@auth.login_required()
+@authorization.require_oauth()
 @blp.arguments(schemas.CreateTag)
 @blp.response(201, schemas.Tag)
 def create(*args, **kwargs):
@@ -155,7 +155,7 @@ def __get(id):
 
 @blp.route(resource_url, methods=["PUT"])
 @blp.doc(operationId='UpdateTag')
-@auth.admin_required()
+@authorization.require_admin()
 @blp.arguments(schemas.Tag)
 @blp.response(204)
 def update(*args, **kwargs):
@@ -193,7 +193,7 @@ def __update(body_args, id):
 
 @blp.route(resource_url, methods=["DELETE"])
 @blp.doc(operationId='DeleteTag')
-@auth.admin_required()
+@authorization.require_admin()
 @blp.response(204)
 def delete(*args, **kwargs):
     """(Admins) Deletes an existing tag

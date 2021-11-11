@@ -50,6 +50,7 @@ def development_defaults(func):
 
 
 bool = development_defaults(env.bool)
+list = development_defaults(env.list)
 int = development_defaults(env.int)
 str = development_defaults(env.str)
 
@@ -141,7 +142,7 @@ BCRYPT_LOG_ROUNDS = int("BCRYPT_LOG_ROUNDS", default=12)
 
 
 # Authorization configuration.
-OIDC_CLIENT_ID = str("OIDC_CLIENT_ID", dev_default="not-defined")
+EGI_CLIENT_ID = str("EGI_CLIENT_ID", dev_default="not-defined")
 """| OIDC Client Identifier valid at the Authorization Server.
 | See https://openid.net/specs/openid-connect-core-1_0.html
 
@@ -151,7 +152,7 @@ OIDC_CLIENT_ID = str("OIDC_CLIENT_ID", dev_default="not-defined")
 :meta hide-value:
 """
 
-OIDC_CLIENT_SECRET = str("OIDC_CLIENT_SECRET", default="", dev_default="not-defined")
+EGI_CLIENT_SECRET = str("EGI_CLIENT_SECRET", default="", dev_default="not-defined")
 """| Secret to validate the application identify on the Authorization Server.
 | See https://openid.net/specs/openid-connect-core-1_0.html
 
@@ -161,20 +162,20 @@ OIDC_CLIENT_SECRET = str("OIDC_CLIENT_SECRET", default="", dev_default="not-defi
 :meta hide-value:
 """
 
-OIDC_CLIENT_SECRET_FILE = str("OIDC_CLIENT_SECRET_FILE", default="")
-"""| Path to a secret file to define `OIDC_CLIENT_SECRET`.
+EGI_CLIENT_SECRET_FILE = str("EGI_CLIENT_SECRET_FILE", default="")
+"""| Path to a secret file to define `EGI_CLIENT_SECRET`.
 
 | The secret inside the file overwrites the environment SECRET_KEY therefore
-| the configuration requirement `OIDC_CLIENT_SECRET` does not apply.
+| the configuration requirement `EGI_CLIENT_SECRET` does not apply.
 
 :meta hide-value:
 """
-if OIDC_CLIENT_SECRET_FILE:
-    OIDC_CLIENT_SECRET = open(OIDC_CLIENT_SECRET_FILE).read().rstrip('\n')
-if not OIDC_CLIENT_SECRET:
-    raise EnvError("Environment variable 'OIDC_CLIENT_SECRET' empty")
+if EGI_CLIENT_SECRET_FILE:
+    EGI_CLIENT_SECRET = open(EGI_CLIENT_SECRET_FILE).read().rstrip('\n')
+if not EGI_CLIENT_SECRET:
+    raise EnvError("Environment variable 'EGI_CLIENT_SECRET' empty")
 
-ADMIN_ENTITLEMENTS = str("ADMIN_ENTITLEMENTS", default="")
+ADMIN_ENTITLEMENTS = list("ADMIN_ENTITLEMENTS", default="")
 """| OIDC Entitlements to grant administrator rights to users.
 | By default no entitlements are defined to grant administrator rights,
   default=[].

@@ -1,11 +1,11 @@
 """Models module package for main models definition."""
 from datetime import datetime as dt
 
-from sqlalchemy import Column, DateTime, ForeignKey, Text, UniqueConstraint
+from sqlalchemy import Column, DateTime, Text
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import backref, relationship
 
-from ...extensions import auth
+from ... import authorization
 from ..core import TokenModel
 
 
@@ -41,7 +41,7 @@ class User(TokenModel):
 
     @classmethod
     def current_user(cls):
-        tokeninfo = auth.current_tokeninfo()
+        tokeninfo = authorization.current_token
         return cls.read((tokeninfo['sub'], tokeninfo['iss']))
 
 
