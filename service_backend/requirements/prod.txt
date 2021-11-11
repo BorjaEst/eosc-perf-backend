@@ -25,8 +25,9 @@ supervisor~=4.2.2
 
 # Auth
 flask-bcrypt~=0.7.1
-flaat~=0.14.5
 requests~=2.26.0
+git+https://github.com/lepture/authlib@master
+
 
 # Caching
 flask-caching~=1.10.1
