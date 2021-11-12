@@ -112,10 +112,9 @@ def configure_logger(app):
 
 
 def configure_authentication(app):
-    CONF_URL = 'https://aai-dev.egi.eu/oidc/.well-known/openid-configuration'
     oauth.register(
         name='egi',
-        server_metadata_url=CONF_URL,
+        server_metadata_url=app.config['SERVER_METADATA_URL'],
         client_kwargs={'scope': 'openid email profile'}
     )
 

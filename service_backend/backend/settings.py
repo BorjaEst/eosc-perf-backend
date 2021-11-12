@@ -186,12 +186,27 @@ ADMIN_ENTITLEMENTS = list("ADMIN_ENTITLEMENTS", default="")
 DISABLE_ADMIN_PROTECTION = bool(
     "DISABLE_ADMIN_PROTECTION", default=False, dev_default=True
 )
-"""| Administrator methods can be acceed by any user.
+"""| Administrator methods can be accessed by any user.
 | **Warning**: Users information is collected using OIDC.
 | OIDC configuration is still needed in order to create new valid users.
 
 | When ENV is set to `production`, the default value stands to: "False".
 | When ENV is set to `development`, the default value stands to: "True".
+
+:meta hide-value:
+"""
+
+SERVER_METADATA_URL = str(
+    "SERVER_METADATA_URL",
+    default="https://aai.egi.eu/oidc/.well-known/openid-configuration",
+    dev_default="https://aai-dev.egi.eu/oidc/.well-known/openid-configuration"
+)
+"""| URL from where to retrieve the OIDC server metadata .
+
+| When ENV is set to `production`, the default value stands to: 
+"https://aai.egi.eu/oidc/.well-known/openid-configuration".
+| When ENV is set to `development`, the default value stands to: 
+"https://aai-dev.egi.eu/oidc/.well-known/openid-configuration".
 
 :meta hide-value:
 """
