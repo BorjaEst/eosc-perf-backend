@@ -4,12 +4,11 @@ See: https://pytest-flask.readthedocs.io/en/latest/features.html
 import logging
 import os
 
+import jwt
 import factories
-from backend import create_app
-from backend.extensions import auth as authentication
+from backend import authorization, create_app
 from backend.extensions import db as database
 from backend.utils import dockerhub
-from flaat import tokentools
 from pytest import fixture
 from pytest_postgresql.janitor import DatabaseJanitor
 
@@ -18,6 +17,9 @@ from tests import db_instances
 TEST_DB = 'test_database'
 VERSION = 12.2  # postgresql version number
 
+
+# -------------------------------------------------------------------
+# Server Fixtures ---------------------------------------------------
 
 @fixture(scope='session')
 def sql_database(postgresql_proc):
@@ -84,6 +86,9 @@ def session(db):
     db.session.close()      # Next test gets a new session
 
 
+# -------------------------------------------------------------------
+# Authorization & Authentication Fixtures ---------------------------
+
 @fixture(scope='function')
 def token_sub(request):
     """Returns the sub to include on the user token."""
@@ -96,66 +101,25 @@ def token_iss(request):
     return request.param if hasattr(request, 'param') else None
 
 
-@fixture(scope='function')
-def mock_accesstoken(monkeypatch, token_sub, token_iss):
-    """Patch fixture to test function with valid oidc token."""
-    monkeypatch.setattr(
-        tokentools,
-        "get_accesstoken_info",
-        lambda _: {
-            'body': {'sub': token_sub, 'iss': token_iss},
-            'exp': 99999999999
-        }
-    )
-    monkeypatch.setattr(
-        tokentools,
-        "get_access_token_from_request",
-        lambda _: "mocktoken"
-    )
+@fixture(scope="function")
+def access_token(app, token_sub, token_iss):
+    """Generates a token encrypted with the app key"""
+    return jwt.encode(
+        {
+            'sub': token_sub, 'iss': token_iss,
+            "exp": 9999999999,
+            "iat": 0000000000,
+            "scope": "openid email groups",
+        },
+        app.config.get('SECRET_KEY'),
+        algorithm='HS256'
+    ) if token_sub and token_iss else None
 
 
 @fixture(scope='function')
-def mock_endpoints(monkeypatch):
-    """Patch fixture to edit information from tokenuser endpoints."""
-    monkeypatch.setattr(
-        authentication,
-        "get_info_from_userinfo_endpoints",
-        lambda _: {}
-    )
-
-
-@fixture(scope='function')
-def introspection_email(request):
-    """Returns the email to be returned by the introspection endpoint."""
-    return request.param if hasattr(request, 'param') else None
-
-
-@fixture(scope='function')
-def mock_introspection(monkeypatch, introspection_email):
-    """Patch function to provide custom introspection information."""
-    monkeypatch.setattr(
-        authentication,
-        "get_info_from_introspection_endpoints",
-        lambda _: {'email': introspection_email}
-    )
-
-
-@fixture(scope='function')
-def grant_accesstoken(mock_accesstoken, mock_endpoints, mock_introspection):
-    """Patch fixture to test function with valid oidc token."""
-    pass
-
-
-@fixture(scope='function')
-def grant_logged(monkeypatch, grant_accesstoken):
-    """Patch fixture to test function as logged user."""
-    monkeypatch.setattr(authentication, "valid_user", lambda: True)
-
-
-@fixture(scope='function')
-def grant_admin(monkeypatch, grant_logged):
+def grant_admin(monkeypatch):
     """Patch fixture to test function as admin user."""
-    monkeypatch.setattr(authentication, "valid_admin", lambda: True)
+    monkeypatch.setattr(authorization, "is_admin", lambda: True)
 
 
 @fixture(scope='function')
@@ -164,6 +128,9 @@ def mock_docker_registry(monkeypatch):
     def always_true(*arg, **kwarg): return True
     monkeypatch.setattr(dockerhub, "valid_image", always_true)
 
+
+# -------------------------------------------------------------------
+# Request Fixtures --------------------------------------------------
 
 @fixture(scope='function')
 def endpoint(request):
@@ -177,6 +144,14 @@ def query(request):
     return request.param if hasattr(request, 'param') else {}
 
 
+@fixture(scope="function")
+def headers(access_token):
+    headers = {}
+    if access_token:
+        headers['Authorization'] = 'Bearer {}'.format(access_token)
+    return headers if headers != {} else None
+
+
 @fixture(scope='function')
 def body(request):
     """Fixture that return the body for the request."""
@@ -184,30 +159,30 @@ def body(request):
 
 
 @fixture(scope='function')
-def response_GET(client, url):
+def response_GET(client, url, headers):
     """Fixture that return the result of a GET request."""
     return client.get(url)
 
 
 @fixture(scope='function')
-def response_POST(client, url, body):
+def response_POST(client, url, headers, body):
     """Fixture that return the result of a POST request."""
-    return client.post(url, json=body)
+    return client.post(url, headers=headers, json=body)
 
 
 @fixture(scope='function')
-def response_PUT(client, url, body):
+def response_PUT(client, url, headers, body):
     """Fixture that return the result of a PUT request."""
-    return client.put(url, json=body)
+    return client.put(url, headers=headers, json=body)
 
 
 @fixture(scope='function')
-def response_PATCH(client, url, body):
+def response_PATCH(client, url, headers, body):
     """Fixture that return the result of a PATCH request."""
-    return client.patch(url, json=body)
+    return client.patch(url, headers=headers, json=body)
 
 
 @fixture(scope='function')
-def response_DELETE(client, url):
+def response_DELETE(client, headers, url):
     """Fixture that return the result of a DELETE request."""
-    return client.delete(url)
+    return client.delete(url, headers=headers)
