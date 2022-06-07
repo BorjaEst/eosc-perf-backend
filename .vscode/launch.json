@@ -61,5 +61,16 @@
                 }
             ]
         },
+        {
+            "name": "Client: Update flavors",
+            "type": "python",
+            "request": "launch",
+            "program": "update.py",
+            "purpose": [
+                "debug-test"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
     ]
 }
